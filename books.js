@@ -1,9 +1,17 @@
-function renderBooks(filter) {
+let books;
+
+async function renderBooks(filter) {
   const booksWrapper = document.querySelector(".books")
+
+  booksWrapper.classList += ' books__loading'
+
+  if (!books) {
+    books = await getBooks();
+  }
+
+  booksWrapper.classList.remove('books__loading')
+
   
-  const books = getBooks();
-
-
   if (filter === 'LOW_TO_HIGH') {
     console.log(filter)
     const filteredBooks = books.sort(
@@ -33,10 +41,10 @@ function renderBooks(filter) {
               ${book.title}
             </div>
             <div class="book__ratings">
-              ${ratingHTML(book.rating)}
+              ${ratingsHTML(book.rating)}
             </div>
             <div class="book__price">
-              <span>$${book.originalPrice.toFixed(2)}</span> 
+              ${priceHTML(book.originalPrice, book.salePrice)}
             </div>
           </div>`
   })
@@ -44,6 +52,13 @@ function renderBooks(filter) {
 
 
 booksWrapper.innerHTML = booksHtml
+}
+
+function priceHTML(originalPrice, salePrice) {
+  if (!salePrice) {
+    return `$${originalPrice.toFixed(2)}`
+  }
+  return `<span class="book__price--normal">$${originalPrice.toFixed(2)}</span> $${salePrice.toFixed(2)}`
 }
 
 function ratingsHTML(rating) {
@@ -69,8 +84,10 @@ setTimeout(() => {
 
 // FAKE DATA
 function getBooks() {
-  return [
-    {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        {
       id: 1,
       title: "Crack the Coding Interview",
                 url: "assets/crack the coding interview.png",
@@ -158,5 +175,7 @@ function getBooks() {
       salePrice: null,
       rating: 4.5,
     },
-  ];
+       ]);
+    }, 1000);
+  });
 }
